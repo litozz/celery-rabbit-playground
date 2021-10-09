@@ -1,10 +1,13 @@
 import pika
 import random
-import time
+import logging
+import os
 
-credentials = pika.PlainCredentials('guest', 'guest')
-parameters = pika.ConnectionParameters('172.23.0.2', credentials=credentials)
+credentials = pika.PlainCredentials(os.environ.get('PRODUCER_USER'), os.environ.get('PRODUCER_PASSWORD'))
+parameters = pika.ConnectionParameters(host='rabbitmq', credentials=credentials)
 connection = pika.BlockingConnection(parameters)
+
+print("Producer connected successfully")
 
 channel = connection.channel()
 
@@ -22,7 +25,6 @@ def main():
     message_data = QUEUE_MAPPING[random.randint(0,2)]
     print(f"Generated {message_data['queue']} message")
     channel.basic_publish(exchange='', routing_key=message_data['queue'], body=message_data['body'])
-    time.sleep(1)
 
 
 if __name__ == '__main__':
