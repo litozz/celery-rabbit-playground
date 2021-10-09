@@ -1,0 +1,5 @@
+FROM python:3
+WORKDIR /usr/src/app
+COPY . ./producer
+RUN pip install -r ./producer/requirements.txt
+# ENTRYPOINT python ./producer/producer.py
