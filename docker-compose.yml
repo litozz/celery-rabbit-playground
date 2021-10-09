@@ -2,8 +2,11 @@ version: '3.3'
 
 services:
   rabbitmq:
-    image: rabbitmq:3-management
-    hostname: my-rabbit
+    # image: rabbitmq:3-management
+    build:
+      context: .
+      dockerfile: server_dockerfile
+    hostname: rabbitmq
     volumes:
       - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
       - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
@@ -12,3 +15,50 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    environment:
+      - RABBITMQ_PRODUCER_USER=producer
+      - RABBITMQ_PRODUCER_PASSWORD=producer
+      - RABBITMQ_ERROR_USER=error
+      - RABBITMQ_ERROR_PASSWORD=error
+      - RABBITMQ_WARNING_USER=warning
+      - RABBITMQ_WARNING_PASSWORD=warning
+      - RABBITMQ_SUCCESS_USER=success
+      - RABBITMQ_SUCCESS_PASSWORD=success
+
+  producer:
+    build:
+      context: ./producer
+      dockerfile: producer_dockerfile
+    depends_on:
+      - rabbitmq
+    restart: always
+    entrypoint: ["python", "producer/producer.py"]
+    environment:
+      - PRODUCER_USER=producer
+      - PRODUCER_PASSWORD=producer
+
+  consumer_warning:
+    build:
+      context: ./consumer
+      dockerfile: consumer_dockerfile
+    depends_on:
+      - rabbitmq
+    restart: always
+    entrypoint: ["python", "consumer/consumer.py"]
+    environment:
+      - CONSUMER_QUEUE=warning
+      - CONSUMER_USER=warning
+      - CONSUMER_PASSWORD=warning
+
+  consumer_errors:
+    build:
+      context: ./consumer
+      dockerfile: consumer_dockerfile
+    depends_on:
+      - rabbitmq
+    restart: always
+    entrypoint: ["python", "consumer/consumer.py"]
+    environment:
+      - CONSUMER_QUEUE=error
+      - CONSUMER_USER=error
+      - CONSUMER_PASSWORD=error
