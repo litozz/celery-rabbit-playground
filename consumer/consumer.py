@@ -1,9 +1,12 @@
 import pika, sys, os
+import logging
 
 def main(queue):
-    credentials = pika.PlainCredentials('guest', 'guest')
-    parameters = pika.ConnectionParameters('172.23.0.2', credentials=credentials)
+    credentials = pika.PlainCredentials(os.environ.get('CONSUMER_USER'), os.environ.get('CONSUMER_PASSWORD'))
+    parameters = pika.ConnectionParameters(host='rabbitmq', credentials=credentials)
     connection = pika.BlockingConnection(parameters)
+
+    print("Consumer connected successfully")
 
     channel = connection.channel()
 
@@ -19,7 +22,7 @@ def main(queue):
 
 if __name__ == '__main__':
     try:
-        main('warning')
+        main(os.environ.get('CONSUMER_QUEUE'))
     except KeyboardInterrupt:
         try:
             connection.close()
