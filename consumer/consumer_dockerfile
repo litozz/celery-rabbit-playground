@@ -1,0 +1,5 @@
+FROM python:3
+WORKDIR /usr/src/app
+COPY . ./consumer
+RUN pip install -r ./consumer/requirements.txt
+# ENTRYPOINT python ./consumer/consumer.py
