@@ -2,6 +2,9 @@ import pika
 import random
 import logging
 import os
+from celery import Celery
+
+app = Celery('celery_producer', backend='rpc://', broker='rabbitmq')
 
 credentials = pika.PlainCredentials(os.environ.get('PRODUCER_USER'), os.environ.get('PRODUCER_PASSWORD'))
 parameters = pika.ConnectionParameters(host='rabbitmq', credentials=credentials)
@@ -22,17 +25,18 @@ QUEUE_MAPPING = {
 }
 
 
-
-def main():
+@app.task
+def produce():
     message_data = QUEUE_MAPPING[random.randint(0,2)]
     print(f"Generated {message_data['queue']} message")
     channel.basic_publish(exchange='', routing_key=message_data['queue'], body=message_data['body'])
 
 
 if __name__ == '__main__':
+    app.start()
     try:
         while True:
-            main()
+            produce.delay()
     except KeyboardInterrupt:
         try:
             connection.close()

@@ -1,8 +1,8 @@
 version: '3.3'
 
 services:
+
   rabbitmq:
-    # image: rabbitmq:3-management
     build:
       context: .
       dockerfile: server_dockerfile
@@ -25,6 +25,7 @@ services:
       - RABBITMQ_SUCCESS_USER=success
       - RABBITMQ_SUCCESS_PASSWORD=success
 
+
   producer:
     build:
       context: ./producer
@@ -32,7 +33,8 @@ services:
     depends_on:
       - rabbitmq
     restart: always
-    entrypoint: ["python", "producer/producer.py"]
+    # entrypoint: ["python", "producer/producer.py"]
+    entrypoint: ["celery", "-A", "producer.producer_celery", "worker", "--loglevel=INFO"]
     environment:
       - PRODUCER_USER=producer
       - PRODUCER_PASSWORD=producer
@@ -44,7 +46,8 @@ services:
     depends_on:
       - rabbitmq
     restart: always
-    entrypoint: ["python", "consumer/consumer.py"]
+    # entrypoint: ["python", "consumer/consumer.py"]
+    entrypoint: ["celery", "-A", "consumer.consumer_celery", "worker", "--loglevel=INFO"]
     environment:
       - CONSUMER_QUEUE=warning
       - CONSUMER_USER=warning
@@ -57,7 +60,8 @@ services:
     depends_on:
       - rabbitmq
     restart: always
-    entrypoint: ["python", "consumer/consumer.py"]
+    # entrypoint: ["python", "consumer/consumer.py"]
+    entrypoint: ["celery", "-A", "consumer.consumer_celery", "worker", "--loglevel=INFO"]
     environment:
       - CONSUMER_QUEUE=error
       - CONSUMER_USER=error

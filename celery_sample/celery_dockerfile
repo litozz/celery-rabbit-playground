@@ -1,0 +1,6 @@
+FROM python:3
+WORKDIR /usr/src/app
+COPY . ./celery_sample
+RUN pip install -r ./celery_sample/requirements.txt
+WORKDIR ./celery_sample
+ENTRYPOINT celery -A celery_sample worker --loglevel=INFO
