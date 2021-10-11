@@ -1,6 +1,8 @@
 import pika, sys, os
 import logging
-from orchestrator import app
+from celery import Celery
+
+app = Celery('celery_consumer', backend='rpc://', broker='rabbitmq')
 
 @app.task
 def consume(queue):
@@ -23,6 +25,7 @@ def consume(queue):
     channel.start_consuming()
 
 if __name__ == '__main__':
+    app.start()
     try:
         consume.delay(os.environ.get('CONSUMER_QUEUE'))
     except KeyboardInterrupt:
