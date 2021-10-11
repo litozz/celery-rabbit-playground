@@ -2,7 +2,9 @@ import pika
 import random
 import logging
 import os
-from orchestrator import app
+from celery import Celery
+
+app = Celery('celery_producer', backend='rpc://', broker='rabbitmq')
 
 credentials = pika.PlainCredentials(os.environ.get('PRODUCER_USER'), os.environ.get('PRODUCER_PASSWORD'))
 parameters = pika.ConnectionParameters(host='rabbitmq', credentials=credentials)
@@ -31,6 +33,7 @@ def produce():
 
 
 if __name__ == '__main__':
+    app.start()
     try:
         while True:
             produce.delay()

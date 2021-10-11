@@ -21,6 +21,8 @@ QUEUE_MAPPING = {
     2: {'queue': 'error', 'body': 'An error happened and needs attention' }
 }
 
+
+
 def main():
     message_data = QUEUE_MAPPING[random.randint(0,2)]
     print(f"Generated {message_data['queue']} message")
