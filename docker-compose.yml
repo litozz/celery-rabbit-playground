@@ -66,3 +66,17 @@ services:
       - CONSUMER_QUEUE=error
       - CONSUMER_USER=error
       - CONSUMER_PASSWORD=error
+
+  consumer_success:
+    build:
+      context: ./consumer
+      dockerfile: consumer_dockerfile
+    depends_on:
+      - rabbitmq
+    restart: always
+    entrypoint: ["python", "consumer/consumer.py"]
+    # entrypoint: ["celery", "-A", "consumer.consumer_celery", "worker", "--loglevel=INFO"]
+    environment:
+      - CONSUMER_QUEUE=success
+      - CONSUMER_USER=success
+      - CONSUMER_PASSWORD=success
